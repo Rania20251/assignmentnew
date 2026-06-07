@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class RecordsScreen extends StatelessWidget {
   const RecordsScreen({super.key});
@@ -17,125 +18,116 @@ class RecordsScreen extends StatelessWidget {
         elevation: 0,
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(18),
+      body: FutureBuilder<List<dynamic>>(
+        future: ApiService.getMedicalRecords(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-        child: ListView(
-          children: const [
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                snapshot.error.toString(),
+                style: const TextStyle(color: Colors.red),
+              ),
+            );
+          }
 
-            RecordCard(
-              title: 'Blood Test',
-              doctor: 'Dr. Ahmed Khaled',
-              date: 'May 20, 2026',
-              status: 'Completed',
-            ),
+          final records = snapshot.data ?? [];
 
-            RecordCard(
-              title: 'MRI Scan',
-              doctor: 'Dr. Sarah Mohammed',
-              date: 'May 18, 2026',
-              status: 'Pending',
-            ),
+          if (records.isEmpty) {
+            return const Center(
+              child: Text('No medical records found'),
+            );
+          }
 
-            RecordCard(
-              title: 'Dental Checkup',
-              doctor: 'Dr. Mohammed Ali',
-              date: 'May 10, 2026',
-              status: 'Completed',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+          return ListView.builder(
+            padding: const EdgeInsets.all(18),
+            itemCount: records.length,
+            itemBuilder: (context, index) {
+              final record = records[index];
 
-class RecordCard extends StatelessWidget {
-
-  final String title;
-  final String doctor;
-  final String date;
-  final String status;
-
-  const RecordCard({
-    super.key,
-    required this.title,
-    required this.doctor,
-    required this.date,
-    required this.status,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    const primary = Color(0xff5B2EFF);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-
-      padding: const EdgeInsets.all(18),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-      ),
-
-      child: Row(
-        children: [
-
-          const CircleAvatar(
-            radius: 30,
-            backgroundColor: Color(0xffEDE7FF),
-
-            child: Icon(
-              Icons.description,
-              color: primary,
-            ),
-          ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-
-              children: [
-
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
                 ),
 
-                const SizedBox(height: 4),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Color(0xffEDE7FF),
+                      child: Icon(
+                        Icons.description,
+                        color: primary,
+                      ),
+                    ),
 
-                Text(
-                  doctor,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                  ),
+                    const SizedBox(width: 14),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+
+                        children: [
+                          Text(
+                            record['title']
+                                ?.toString() ??
+                                'Medical Record',
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight:
+                              FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 6),
+
+                          Text(
+                            record['description']
+                                ?.toString() ??
+                                '',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            record['recordDate']
+                                ?.toString() ??
+                                '',
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            record['status']
+                                ?.toString() ??
+                                '',
+                            style: const TextStyle(
+                              color: primary,
+                              fontWeight:
+                              FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 8),
-
-                Text(date),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  status,
-                  style: const TextStyle(
-                    color: primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+              );
+            },
+          );
+        },
       ),
     );
   }

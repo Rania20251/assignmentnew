@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const SmartClinicApp());
@@ -10,10 +10,10 @@ class SmartClinicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'MedLink',
-      home: const LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }

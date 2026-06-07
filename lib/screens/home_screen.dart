@@ -63,6 +63,21 @@ class _HomeScreenState extends State<HomeScreen> {
     return true;
   }
 
+  String getDoctorImage(int doctorId) {
+    switch (doctorId) {
+      case 1:
+        return 'assets/images/doctor1.jpg';
+      case 2:
+        return 'assets/images/doctor3.jpg';
+      case 3:
+        return 'assets/images/doctor2.jpg';
+      case 4:
+        return 'assets/images/doctor4.jpg';
+      default:
+        return 'assets/images/doctor1.jpg';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xff5B2EFF);
@@ -263,13 +278,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     return Column(
                       children: filteredDoctors.map((doctor) {
+                        final doctorId = int.tryParse(
+                          doctor['doctorId'].toString(),
+                        ) ??
+                            0;
+
                         return DoctorCard(
                           name: doctor['fullName']?.toString() ?? 'Doctor',
                           specialty:
                           doctor['specialty']?.toString() ?? 'Specialist',
                           rating: '4.8',
                           time: '10:30 AM',
-                          doctorId: doctor['doctorId'],
+                          doctorId: doctorId,
+                          imagePath: getDoctorImage(doctorId),
                         );
                       }).toList(),
                     );
@@ -340,6 +361,7 @@ class DoctorCard extends StatelessWidget {
   final String rating;
   final String time;
   final int doctorId;
+  final String imagePath;
 
   const DoctorCard({
     super.key,
@@ -348,6 +370,7 @@ class DoctorCard extends StatelessWidget {
     required this.rating,
     required this.time,
     required this.doctorId,
+    required this.imagePath,
   });
 
   @override
@@ -382,17 +405,7 @@ class DoctorCard extends StatelessWidget {
             CircleAvatar(
               radius: 30,
               backgroundColor: const Color(0xffEDE7FF),
-              backgroundImage: AssetImage(
-                doctorId == 1
-                    ? 'assets/images/doctor1.jpg'
-                    : doctorId == 2
-                    ? 'assets/images/doctor3.jpg'
-                    : doctorId == 3
-                    ? 'assets/images/doctor2.jpg'
-                    : doctorId == 4
-                    ? 'assets/images/doctor4.jpg'
-                    : 'assets/images/doctor4.jpg',
-              ),
+              backgroundImage: AssetImage(imagePath),
             ),
 
             const SizedBox(width: 14),
@@ -408,12 +421,16 @@ class DoctorCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 4),
+
                   Text(
                     specialty,
                     style: const TextStyle(color: Colors.grey),
                   ),
+
                   const SizedBox(height: 8),
+
                   Row(
                     children: [
                       const Icon(

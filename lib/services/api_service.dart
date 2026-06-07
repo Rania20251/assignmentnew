@@ -107,6 +107,32 @@ class ApiService {
     return response.statusCode == 200 || response.statusCode == 204;
   }
 
+  static Future<bool> changePassword({
+    required int userId,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/Users/change-password/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "oldPassword": oldPassword.trim(),
+          "newPassword": newPassword.trim(),
+        }),
+      );
+
+      print('CHANGE PASSWORD STATUS: ${response.statusCode}');
+      print('CHANGE PASSWORD BODY: ${response.body}');
+
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static Future<List<dynamic>> getDoctors() async {
     final response = await http.get(
       Uri.parse('$baseUrl/Doctors'),
@@ -182,5 +208,25 @@ class ApiService {
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Failed to delete appointment');
     }
+  }
+
+  static Future<List<dynamic>> getMedicalRecords() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/MedicalRecords'),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+
+    throw Exception('Failed to load medical records');
+  }
+
+  static Future<List<dynamic>> getMedicalRecordsByUser(int patientId) async {
+    final records = await getMedicalRecords();
+
+    return records.where((record) {
+      return record['patientId'].toString() == patientId.toString();
+    }).toList();
   }
 }

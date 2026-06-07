@@ -47,7 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (user != null) {
-        UserSession.saveUser(user);
+        await UserSession.saveUser(user);
+
+        if (!mounted) return;
 
         Navigator.pushReplacement(
           context,
@@ -102,7 +104,12 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.local_hospital, size: 72, color: primary),
+                const Icon(
+                  Icons.local_hospital,
+                  size: 72,
+                  color: primary,
+                ),
+
                 const SizedBox(height: 18),
 
                 const Text(

@@ -3,6 +3,7 @@ import '../services/user_session.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
+import 'change_password_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -66,6 +67,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
+              const SizedBox(height: 6),
+
+              Center(
+                child: Text(
+                  'User ID: ${UserSession.userId}',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 30),
 
               FutureBuilder<int>(
@@ -94,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const ProfileItem(
                 icon: Icons.medical_services,
                 title: 'Medical Records',
-                value: '2 Records',
+                value: 'From Database',
               ),
 
               ProfileItem(
@@ -137,7 +150,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
 
-                    setState(() {});
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const Icon(Icons.lock),
+                  label: const Text('Change Password'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ChangePasswordScreen(),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -156,8 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   icon: const Icon(Icons.logout),
                   label: const Text('Logout'),
-                  onPressed: () {
-                    UserSession.clear();
+                  onPressed: () async {
+                    await UserSession.clear();
+
+                    if (!mounted) return;
 
                     Navigator.pushAndRemoveUntil(
                       context,
