@@ -229,4 +229,44 @@ class ApiService {
       return record['patientId'].toString() == patientId.toString();
     }).toList();
   }
+
+  static Future<void> createMedicalRecord({
+    required int patientId,
+    required int doctorId,
+    required String title,
+    required String description,
+    required String recordDate,
+    required String status,
+    required String fileUrl,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/MedicalRecords'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "patientId": patientId,
+        "doctorId": doctorId,
+        "title": title,
+        "description": description,
+        "recordDate": recordDate,
+        "status": status,
+        "fileUrl": fileUrl,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to upload medical record');
+    }
+  }
+
+  static Future<void> deleteMedicalRecord(int recordId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/MedicalRecords/$recordId'),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete medical record');
+    }
+  }
 }
