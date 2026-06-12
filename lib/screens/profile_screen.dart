@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../services/user_session.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
@@ -13,6 +17,36 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final ImagePicker imagePicker = ImagePicker();
+
+  Future<void> pickProfileImage() async {
+    final XFile? image = await imagePicker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (image == null) return;
+
+    setState(() {
+      UserSession.profileImage = image.path;
+    });
+
+    await UserSession.updateProfileImage(image.path);
+  }
+
+  ImageProvider getProfileImage() {
+    final imagePath = UserSession.profileImage;
+
+    if (imagePath != null && imagePath.isNotEmpty) {
+      if (imagePath.startsWith('assets/')) {
+        return AssetImage(imagePath);
+      }
+
+      return FileImage(File(imagePath));
+    }
+
+    return const AssetImage('assets/images/profile.jpg');
+  }
+
   @override
   Widget build(BuildContext context) {
     const primary = Color(0xff5B2EFF);
@@ -39,10 +73,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               const SizedBox(height: 20),
 
-              const Center(
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: AssetImage('assets/images/profile.jpg'),
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: getProfileImage(),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: InkWell(
+                        onTap: pickProfileImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 

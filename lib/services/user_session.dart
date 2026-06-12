@@ -45,6 +45,13 @@ class UserSession {
     profileImage = prefs.getString('profileImage');
   }
 
+  static Future<void> updateProfileImage(String imagePath) async {
+    profileImage = imagePath;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profileImage', imagePath);
+  }
+
   static bool get isLoggedIn => userId != null;
 
   static Future<void> clear() async {
