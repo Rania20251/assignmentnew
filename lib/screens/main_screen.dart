@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import 'schedule_screen.dart';
 import 'records_screen.dart';
 import 'profile_screen.dart';
+import 'notifications_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     ScheduleScreen(),
     RecordsScreen(),
+    NotificationsScreen(),
     ProfileScreen(),
   ];
 
@@ -38,10 +40,26 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Schedule'),
-          BottomNavigationBarItem(icon: Icon(Icons.medical_services), label: 'Records'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: 'Schedule',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.medical_services),
+            label: 'Records',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Alerts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );

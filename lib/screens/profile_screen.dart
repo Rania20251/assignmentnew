@@ -8,6 +8,7 @@ import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'change_password_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -233,6 +234,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const ChangePasswordScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const Icon(Icons.admin_panel_settings),
+                  label: const Text('Admin Dashboard'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminDashboardScreen(),
                       ),
                     );
                   },

@@ -24,9 +24,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/Users/login'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "email": email.trim(),
           "password": password.trim(),
@@ -35,10 +33,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
-        if (data is Map<String, dynamic>) {
-          return data;
-        }
+        if (data is Map<String, dynamic>) return data;
       }
 
       return null;
@@ -54,9 +49,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Users'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "fullName": fullName.trim(),
         "email": email.trim(),
@@ -85,9 +78,7 @@ class ApiService {
   }) async {
     final response = await http.put(
       Uri.parse('$baseUrl/Users/$userId'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "userId": userId,
         "fullName": fullName.trim(),
@@ -101,9 +92,6 @@ class ApiService {
       }),
     );
 
-    print('UPDATE USER STATUS: ${response.statusCode}');
-    print('UPDATE USER BODY: ${response.body}');
-
     return response.statusCode == 200 || response.statusCode == 204;
   }
 
@@ -115,17 +103,12 @@ class ApiService {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/Users/change-password/$userId'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "oldPassword": oldPassword.trim(),
           "newPassword": newPassword.trim(),
         }),
       );
-
-      print('CHANGE PASSWORD STATUS: ${response.statusCode}');
-      print('CHANGE PASSWORD BODY: ${response.body}');
 
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {
@@ -157,6 +140,66 @@ class ApiService {
     throw Exception('Failed to load doctor');
   }
 
+  static Future<void> createDoctor({
+    required String fullName,
+    required String specialty,
+    required String phoneNumber,
+    required String email,
+    required String image,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Doctors'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "fullName": fullName.trim(),
+        "specialty": specialty.trim(),
+        "phoneNumber": phoneNumber.trim(),
+        "email": email.trim(),
+        "image": image.trim(),
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to create doctor');
+    }
+  }
+
+  static Future<void> updateDoctor({
+    required int doctorId,
+    required String fullName,
+    required String specialty,
+    required String phoneNumber,
+    required String email,
+    required String image,
+  }) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/Doctors/$doctorId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "doctorId": doctorId,
+        "fullName": fullName.trim(),
+        "specialty": specialty.trim(),
+        "phoneNumber": phoneNumber.trim(),
+        "email": email.trim(),
+        "image": image.trim(),
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to update doctor');
+    }
+  }
+
+  static Future<void> deleteDoctor(int doctorId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/Doctors/$doctorId'),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete doctor');
+    }
+  }
+
   static Future<void> bookAppointment({
     required int patientId,
     required int doctorId,
@@ -164,9 +207,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Appointments'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "patientId": patientId,
         "doctorId": doctorId,
@@ -241,9 +282,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/MedicalRecords'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "patientId": patientId,
         "doctorId": doctorId,
@@ -268,5 +307,20 @@ class ApiService {
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Failed to delete medical record');
     }
+  }
+
+  static Future<int> getDoctorsCount() async {
+    final doctors = await getDoctors();
+    return doctors.length;
+  }
+
+  static Future<int> getMedicalRecordsCount() async {
+    final records = await getMedicalRecords();
+    return records.length;
+  }
+
+  static Future<int> getAppointmentsCount() async {
+    final appointments = await getAppointments();
+    return appointments.length;
   }
 }
