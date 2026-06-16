@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'add_doctor_screen.dart';
+import 'edit_doctor_screen.dart';
 
 class ManageDoctorsScreen extends StatefulWidget {
   const ManageDoctorsScreen({super.key});
@@ -25,6 +27,34 @@ class _ManageDoctorsScreenState extends State<ManageDoctorsScreen> {
     setState(() {
       loadDoctors();
     });
+  }
+
+  Future<void> openAddDoctor() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddDoctorScreen(),
+      ),
+    );
+
+    if (result == true) {
+      refreshDoctors();
+    }
+  }
+
+  Future<void> openEditDoctor(Map<String, dynamic> doctor) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditDoctorScreen(
+          doctor: doctor,
+        ),
+      ),
+    );
+
+    if (result == true) {
+      refreshDoctors();
+    }
   }
 
   Future<void> deleteDoctor(int doctorId) async {
@@ -88,6 +118,10 @@ class _ManageDoctorsScreenState extends State<ManageDoctorsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: refreshDoctors,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: openAddDoctor,
           ),
         ],
       ),
@@ -177,14 +211,28 @@ class _ManageDoctorsScreenState extends State<ManageDoctorsScreen> {
                       ),
                     ),
 
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      ),
-                      onPressed: () {
-                        confirmDelete(doctorId);
-                      },
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.blue,
+                          ),
+                          onPressed: () {
+                            openEditDoctor(doctor);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          onPressed: () {
+                            confirmDelete(doctorId);
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

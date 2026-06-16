@@ -233,6 +233,29 @@ class ApiService {
     throw Exception('Failed to load appointments');
   }
 
+  static Future<void> updateAppointmentStatus({
+    required Map<String, dynamic> appointment,
+    required String status,
+  }) async {
+    final appointmentId = appointment['appointmentId'];
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/Appointments/$appointmentId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "appointmentId": appointment['appointmentId'],
+        "patientId": appointment['patientId'],
+        "doctorId": appointment['doctorId'],
+        "appointmentDate": appointment['appointmentDate'],
+        "status": status,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to update appointment status');
+    }
+  }
+
   static Future<int> getAppointmentCountByUser(int patientId) async {
     final appointments = await getAppointments();
 
