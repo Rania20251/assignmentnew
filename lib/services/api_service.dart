@@ -373,4 +373,25 @@ class ApiService {
     final appointments = await getAppointments();
     return appointments.length;
   }
+  static Future<List<dynamic>> getNotificationsByUser(int userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/Notifications/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+
+    throw Exception('Failed to load notifications');
+  }
+
+  static Future<void> deleteNotification(int notificationId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/Notifications/$notificationId'),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete notification');
+    }
+  }
 }

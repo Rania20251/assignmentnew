@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/notification_service.dart';
+import '../services/api_service.dart';
+import '../services/user_session.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -11,7 +12,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState
     extends State<NotificationsScreen> {
-  late Future<List<Map<String, dynamic>>> notificationsFuture;
+  late Future<List<dynamic>> notificationsFuture;
 
   @override
   void initState() {
@@ -21,47 +22,63 @@ class _NotificationsScreenState
 
   void loadNotifications() {
     notificationsFuture =
-        NotificationService.getNotifications();
+        ApiService.getNotificationsByUser(UserSession.userId ?? 0);
   }
 
-  Future<void> clearAll() async {
-    await NotificationService.clearNotifications();
-
+  void refreshNotifications() {
     setState(() {
       loadNotifications();
     });
   }
 
-  IconData getIcon(String type) {
-    switch (type) {
-      case 'appointment':
-        return Icons.calendar_month;
+  Future<void> deleteNotification(int notificationId) async {
+    await ApiService.deleteNotification(notificationId);
 
-      case 'upload':
-        return Icons.description;
+    refreshNotifications();
 
-      case 'delete':
-        return Icons.delete;
+    if (!mounted) return;
 
-      default:
-        return Icons.notifications;
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Notification deleted'),
+      ),
+    );
   }
 
-  Color getColor(String type) {
-    switch (type) {
-      case 'appointment':
-        return const Color(0xff5B2EFF);
+  IconData getIcon(String title) {
+    final lowerTitle = title.toLowerCase();
 
-      case 'upload':
-        return Colors.green;
-
-      case 'delete':
-        return Colors.red;
-
-      default:
-        return Colors.orange;
+    if (lowerTitle.contains('appointment')) {
+      return Icons.calendar_month;
     }
+
+    if (lowerTitle.contains('medical')) {
+      return Icons.description;
+    }
+
+    if (lowerTitle.contains('deleted')) {
+      return Icons.delete;
+    }
+
+    return Icons.notifications;
+  }
+
+  Color getColor(String title) {
+    final lowerTitle = title.toLowerCase();
+
+    if (lowerTitle.contains('booked')) {
+      return const Color(0xff5B2EFF);
+    }
+
+    if (lowerTitle.contains('updated')) {
+      return Colors.green;
+    }
+
+    if (lowerTitle.contains('deleted')) {
+      return Colors.red;
+    }
+
+    return Colors.orange;
   }
 
   @override
@@ -74,16 +91,15 @@ class _NotificationsScreenState
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
-
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
-            onPressed: clearAll,
+            icon: const Icon(Icons.refresh),
+            onPressed: refreshNotifications,
           ),
         ],
       ),
 
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<dynamic>>(
         future: notificationsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState ==
@@ -93,8 +109,16 @@ class _NotificationsScreenState
             );
           }
 
-          final notifications =
-              snapshot.data ?? [];
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                'Failed to load notifications',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          }
+
+          final notifications = snapshot.data ?? [];
 
           if (notifications.isEmpty) {
             return const Center(
@@ -110,16 +134,24 @@ class _NotificationsScreenState
             itemBuilder: (context, index) {
               final item = notifications[index];
 
-              final type =
-                  item['type']?.toString() ?? '';
+              final notificationId = int.tryParse(
+                item['notificationId']?.toString() ?? '0',
+              ) ??
+                  0;
+
+              final title = item['title']?.toString() ?? '';
+              final message = item['message']?.toString() ?? '';
+              final createdAt = item['createdAt']?.toString() ?? '';
 
               return notificationCard(
-                icon: getIcon(type),
-                color: getColor(type),
-                title:
-                item['title']?.toString() ?? '',
-                subtitle:
-                item['message']?.toString() ?? '',
+                icon: getIcon(title),
+                color: getColor(title),
+                title: title,
+                subtitle: message,
+                date: createdAt,
+                onDelete: () {
+                  deleteNotification(notificationId);
+                },
               );
             },
           );
@@ -133,6 +165,8 @@ class _NotificationsScreenState
     required Color color,
     required String title,
     required String subtitle,
+    required String date,
+    required VoidCallback onDelete,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -146,9 +180,7 @@ class _NotificationsScreenState
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor:
-            color.withOpacity(.15),
-
+            backgroundColor: color.withOpacity(.15),
             child: Icon(
               icon,
               color: color,
@@ -180,8 +212,27 @@ class _NotificationsScreenState
                     color: Colors.grey,
                   ),
                 ),
+
+                if (date.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    date,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ],
             ),
+          ),
+
+          IconButton(
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            onPressed: onDelete,
           ),
         ],
       ),
