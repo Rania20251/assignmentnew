@@ -129,6 +129,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               Center(
                 child: Text(
+                  'Role: ${UserSession.role ?? 'Patient'}',
+                  style: TextStyle(
+                    color: UserSession.isAdmin ? primary : Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Center(
+                child: Text(
                   'User ID: ${UserSession.userId}',
                   style: const TextStyle(
                     color: Colors.red,
@@ -240,30 +252,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              if (UserSession.isAdmin) ...[
+                const SizedBox(height: 12),
 
-              SizedBox(
-                height: 52,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  icon: const Icon(Icons.admin_panel_settings),
-                  label: const Text('Admin Dashboard'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AdminDashboardScreen(),
+                SizedBox(
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    );
-                  },
+                    ),
+                    icon: const Icon(Icons.admin_panel_settings),
+                    label: const Text('Admin Dashboard'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminDashboardScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
 
               const SizedBox(height: 12),
 

@@ -9,8 +9,7 @@ class ManageAppointmentsScreen extends StatefulWidget {
       _ManageAppointmentsScreenState();
 }
 
-class _ManageAppointmentsScreenState
-    extends State<ManageAppointmentsScreen> {
+class _ManageAppointmentsScreenState extends State<ManageAppointmentsScreen> {
   late Future<List<dynamic>> appointmentsFuture;
 
   @override
@@ -93,8 +92,7 @@ class _ManageAppointmentsScreenState
       body: FutureBuilder<List<dynamic>>(
         future: appointmentsFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -151,8 +149,7 @@ class _ManageAppointmentsScreenState
 
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Appointment #${appointment['appointmentId']}',
@@ -166,25 +163,20 @@ class _ManageAppointmentsScreenState
 
                               Text(
                                 'Patient ID: ${appointment['patientId']}',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                ),
+                                style: const TextStyle(color: Colors.grey),
                               ),
 
                               const SizedBox(height: 4),
 
                               Text(
                                 'Doctor ID: ${appointment['doctorId']}',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                ),
+                                style: const TextStyle(color: Colors.grey),
                               ),
 
                               const SizedBox(height: 4),
 
                               Text(
-                                appointment['appointmentDate']
-                                    ?.toString() ??
+                                appointment['appointmentDate']?.toString() ??
                                     '',
                               ),
                             ],

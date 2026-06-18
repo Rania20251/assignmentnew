@@ -9,6 +9,7 @@ class UserSession {
   static String? gender;
   static String? dateOfBirth;
   static String? profileImage;
+  static String? role;
 
   static Future<void> saveUser(Map<String, dynamic> user) async {
     userId = user['userId'];
@@ -19,6 +20,7 @@ class UserSession {
     gender = user['gender'];
     dateOfBirth = user['dateOfBirth'];
     profileImage = user['profileImage'];
+    role = user['role'] ?? 'Patient';
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -30,6 +32,7 @@ class UserSession {
     await prefs.setString('gender', gender ?? '');
     await prefs.setString('dateOfBirth', dateOfBirth ?? '');
     await prefs.setString('profileImage', profileImage ?? '');
+    await prefs.setString('role', role ?? 'Patient');
   }
 
   static Future<void> loadUser() async {
@@ -43,6 +46,7 @@ class UserSession {
     gender = prefs.getString('gender');
     dateOfBirth = prefs.getString('dateOfBirth');
     profileImage = prefs.getString('profileImage');
+    role = prefs.getString('role') ?? 'Patient';
   }
 
   static Future<void> updateProfileImage(String imagePath) async {
@@ -53,6 +57,8 @@ class UserSession {
   }
 
   static bool get isLoggedIn => userId != null;
+
+  static bool get isAdmin => role == 'Admin';
 
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
@@ -67,5 +73,6 @@ class UserSession {
     gender = null;
     dateOfBirth = null;
     profileImage = null;
+    role = null;
   }
 }
