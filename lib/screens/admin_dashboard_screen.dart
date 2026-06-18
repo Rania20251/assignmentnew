@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'manage_doctors_screen.dart';
+import 'manage_appointments_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -38,9 +39,7 @@ class AdminDashboardScreen extends StatelessWidget {
             ]),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return const Center(child: CircularProgressIndicator());
               }
 
               if (snapshot.hasError) {
@@ -92,13 +91,30 @@ class AdminDashboardScreen extends StatelessWidget {
           AdminActionCard(
             icon: Icons.local_hospital,
             title: 'Manage Doctors',
-            subtitle: 'View and delete doctors',
+            subtitle: 'Add, edit, and delete doctors',
             color: primary,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const ManageDoctorsScreen(),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 14),
+
+          AdminActionCard(
+            icon: Icons.event_note,
+            title: 'Manage Appointments',
+            subtitle: 'Confirm, complete, or cancel appointments',
+            color: Colors.green,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ManageAppointmentsScreen(),
                 ),
               );
             },
@@ -196,21 +212,21 @@ class AdminActionCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Manage Doctors',
-                    style: TextStyle(
+                    title,
+                    style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'View and delete doctors',
-                    style: TextStyle(color: Colors.grey),
+                    subtitle,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
