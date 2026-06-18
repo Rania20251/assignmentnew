@@ -95,6 +95,33 @@ class ApiService {
     return response.statusCode == 200 || response.statusCode == 204;
   }
 
+  static Future<List<dynamic>> getUsers() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/Users'),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+
+    throw Exception('Failed to load users');
+  }
+
+  static Future<void> deleteUser(int userId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/Users/$userId'),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete user');
+    }
+  }
+
+  static Future<int> getUsersCount() async {
+    final users = await getUsers();
+    return users.length;
+  }
+
   static Future<bool> changePassword({
     required int userId,
     required String oldPassword,

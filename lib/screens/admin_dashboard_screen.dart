@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'manage_doctors_screen.dart';
 import 'manage_appointments_screen.dart';
+import 'manage_users_screen.dart';
+import 'manage_medical_records_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -33,6 +35,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
           FutureBuilder<List<int>>(
             future: Future.wait([
+              ApiService.getUsersCount(),
               ApiService.getDoctorsCount(),
               ApiService.getAppointmentsCount(),
               ApiService.getMedicalRecordsCount(),
@@ -49,26 +52,32 @@ class AdminDashboardScreen extends StatelessWidget {
                 );
               }
 
-              final data = snapshot.data ?? [0, 0, 0];
+              final data = snapshot.data ?? [0, 0, 0, 0];
 
               return Column(
                 children: [
                   DashboardCard(
+                    icon: Icons.people,
+                    title: 'Users',
+                    value: data[0].toString(),
+                    color: Colors.blue,
+                  ),
+                  DashboardCard(
                     icon: Icons.medical_services,
                     title: 'Doctors',
-                    value: data[0].toString(),
+                    value: data[1].toString(),
                     color: primary,
                   ),
                   DashboardCard(
                     icon: Icons.calendar_month,
                     title: 'Appointments',
-                    value: data[1].toString(),
+                    value: data[2].toString(),
                     color: Colors.green,
                   ),
                   DashboardCard(
                     icon: Icons.description,
                     title: 'Medical Records',
-                    value: data[2].toString(),
+                    value: data[3].toString(),
                     color: Colors.orange,
                   ),
                 ],
@@ -84,6 +93,23 @@ class AdminDashboardScreen extends StatelessWidget {
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
+          ),
+
+          const SizedBox(height: 14),
+
+          AdminActionCard(
+            icon: Icons.people,
+            title: 'Manage Users',
+            subtitle: 'View and delete users',
+            color: Colors.blue,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ManageUsersScreen(),
+                ),
+              );
+            },
           ),
 
           const SizedBox(height: 14),
@@ -115,6 +141,23 @@ class AdminDashboardScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const ManageAppointmentsScreen(),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 14),
+
+          AdminActionCard(
+            icon: Icons.description,
+            title: 'Manage Medical Records',
+            subtitle: 'View and delete medical records',
+            color: Colors.orange,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ManageMedicalRecordsScreen(),
                 ),
               );
             },
