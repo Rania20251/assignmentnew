@@ -155,6 +155,18 @@ class ApiService {
     throw Exception('Failed to load doctors');
   }
 
+  static Future<List<dynamic>> searchDoctors(String query) async {
+    final doctors = await getDoctors();
+
+    return doctors.where((doctor) {
+      final name = doctor['fullName']?.toString().toLowerCase() ?? '';
+      final specialty = doctor['specialty']?.toString().toLowerCase() ?? '';
+      final search = query.toLowerCase();
+
+      return name.contains(search) || specialty.contains(search);
+    }).toList();
+  }
+
   static Future<dynamic> getDoctorById(int id) async {
     final response = await http.get(
       Uri.parse('$baseUrl/Doctors/$id'),
@@ -373,6 +385,7 @@ class ApiService {
     final appointments = await getAppointments();
     return appointments.length;
   }
+
   static Future<List<dynamic>> getNotificationsByUser(int userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/Notifications/user/$userId'),

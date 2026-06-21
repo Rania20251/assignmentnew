@@ -22,6 +22,23 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  String normalizeText(String text) {
+    return text
+        .toLowerCase()
+        .replaceAll('أ', 'ا')
+        .replaceAll('إ', 'ا')
+        .replaceAll('آ', 'ا')
+        .replaceAll('ة', 'ه')
+        .replaceAll('ى', 'ي')
+        .replaceAll('ؤ', 'و')
+        .replaceAll('ئ', 'ي')
+        .replaceAll('د.', '')
+        .replaceAll('dr.', '')
+        .replaceAll('dr', '')
+        .replaceAll('.', '')
+        .trim();
+  }
+
   void selectSpecialty(String specialty) {
     setState(() {
       selectedSpecialty = selectedSpecialty == specialty ? '' : specialty;
@@ -29,38 +46,105 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool matchesSelectedSpecialty(String specialty) {
-    final value = specialty.toLowerCase();
+    final value = normalizeText(specialty);
 
-    if (selectedSpecialty.isEmpty) {
-      return true;
-    }
+    if (selectedSpecialty.isEmpty) return true;
 
     if (selectedSpecialty == 'Heart') {
       return value.contains('heart') ||
           value.contains('cardio') ||
-          value.contains('cardiology');
+          value.contains('cardiology') ||
+          value.contains('قلب');
     }
 
     if (selectedSpecialty == 'Neuro') {
       return value.contains('neuro') ||
           value.contains('brain') ||
-          value.contains('neurology');
+          value.contains('neurology') ||
+          value.contains('اعصاب');
     }
 
     if (selectedSpecialty == 'Pedia') {
       return value.contains('pedia') ||
           value.contains('child') ||
           value.contains('children') ||
-          value.contains('pediatrics');
+          value.contains('pediatrics') ||
+          value.contains('اطفال');
     }
 
     if (selectedSpecialty == 'Eye') {
       return value.contains('eye') ||
           value.contains('vision') ||
-          value.contains('ophthalmology');
+          value.contains('ophthalmology') ||
+          value.contains('عيون');
     }
 
     return true;
+  }
+
+  bool matchesArabicEnglishSearch({
+    required String search,
+    required String name,
+    required String specialty,
+  }) {
+    final normalizedSearch = normalizeText(search);
+    final normalizedName = normalizeText(name);
+    final normalizedSpecialty = normalizeText(specialty);
+
+    if (normalizedSearch.isEmpty) return true;
+
+    if (normalizedName.contains(normalizedSearch) ||
+        normalizedSpecialty.contains(normalizedSearch)) {
+      return true;
+    }
+
+    if (normalizedSearch.contains('قلب')) {
+      return normalizedSpecialty.contains('cardio') ||
+          normalizedSpecialty.contains('cardiology') ||
+          normalizedSpecialty.contains('heart');
+    }
+
+    if (normalizedSearch.contains('اعصاب')) {
+      return normalizedSpecialty.contains('neuro') ||
+          normalizedSpecialty.contains('neurology') ||
+          normalizedSpecialty.contains('brain');
+    }
+
+    if (normalizedSearch.contains('اطفال')) {
+      return normalizedSpecialty.contains('pedia') ||
+          normalizedSpecialty.contains('pediatrics') ||
+          normalizedSpecialty.contains('child') ||
+          normalizedSpecialty.contains('children');
+    }
+
+    if (normalizedSearch.contains('عيون')) {
+      return normalizedSpecialty.contains('eye') ||
+          normalizedSpecialty.contains('vision') ||
+          normalizedSpecialty.contains('ophthalmology');
+    }
+
+    if (normalizedSearch.contains('cardio') ||
+        normalizedSearch.contains('cardiology') ||
+        normalizedSearch.contains('heart')) {
+      return normalizedSpecialty.contains('قلب');
+    }
+
+    if (normalizedSearch.contains('neuro') ||
+        normalizedSearch.contains('neurology')) {
+      return normalizedSpecialty.contains('اعصاب');
+    }
+
+    if (normalizedSearch.contains('pedia') ||
+        normalizedSearch.contains('pediatrics')) {
+      return normalizedSpecialty.contains('اطفال');
+    }
+
+    if (normalizedSearch.contains('eye') ||
+        normalizedSearch.contains('ophthalmology')) {
+      return normalizedSpecialty.contains('عيون');
+    }
+
+    return false;
   }
 
   String getDoctorImage(int doctorId) {
@@ -104,10 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     CircleAvatar(
                       radius: 24,
                       backgroundColor: primary.withOpacity(.12),
-                      child: const Icon(
-                        Icons.person,
-                        color: primary,
-                      ),
+                      child: const Icon(Icons.person, color: primary),
                     ),
                   ],
                 ),
@@ -152,9 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 TextField(
                   controller: searchController,
+                  textDirection: TextDirection.rtl,
                   onChanged: (value) {
                     setState(() {
-                      searchText = value.toLowerCase();
+                      searchText = value.trim();
                     });
                   },
                   decoration: InputDecoration(
@@ -256,15 +338,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     final doctors = snapshot.data ?? [];
 
                     final filteredDoctors = doctors.where((doctor) {
-                      final name =
-                          doctor['fullName']?.toString().toLowerCase() ?? '';
+                      final name = doctor['fullName']?.toString() ?? '';
+                      final specialty = doctor['specialty']?.toString() ?? '';
 
-                      final specialty =
-                          doctor['specialty']?.toString().toLowerCase() ?? '';
-
-                      final matchesSearch = searchText.isEmpty ||
-                          name.contains(searchText) ||
-                          specialty.contains(searchText);
+                      final matchesSearch = matchesArabicEnglishSearch(
+                        search: searchText,
+                        name: name,
+                        specialty: specialty,
+                      );
 
                       final matchesSpecialty =
                       matchesSelectedSpecialty(specialty);
@@ -279,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     return Column(
                       children: filteredDoctors.map((doctor) {
                         final doctorId = int.tryParse(
-                          doctor['doctorId'].toString(),
+                          doctor['doctorId']?.toString() ?? '0',
                         ) ??
                             0;
 
@@ -407,9 +488,7 @@ class DoctorCard extends StatelessWidget {
               backgroundColor: const Color(0xffEDE7FF),
               backgroundImage: AssetImage(imagePath),
             ),
-
             const SizedBox(width: 14),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,16 +500,12 @@ class DoctorCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
                   Text(
                     specialty,
                     style: const TextStyle(color: Colors.grey),
                   ),
-
                   const SizedBox(height: 8),
-
                   Row(
                     children: [
                       const Icon(
@@ -451,7 +526,6 @@ class DoctorCard extends StatelessWidget {
                 ],
               ),
             ),
-
             ElevatedButton(
               onPressed: () async {
                 try {
